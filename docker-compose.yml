@@ -11,7 +11,7 @@ services:
       - backend
   backend:
     image: node:16-alpine
-    working_dir: /app
+    working_dir: /back
     volumes:
       - ./back:/app
     command: node server.js
