@@ -1,7 +1,7 @@
 {
   "name": "Dev'Hetic",
   "short_name": "DevHetic",
-  "start_url": "index.html",
+  "start_url": "./code/index.html",
   "display": "standalone",
   "background_color": "#fdfdfd",
   "theme_color": "#db4938",
