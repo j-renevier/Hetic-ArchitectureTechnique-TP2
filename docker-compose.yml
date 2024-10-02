@@ -1,0 +1,37 @@
+services:
+  web:
+    image: nginx
+    expose:
+      - "80"
+    volumes:
+      - ./front:/usr/share/nginx/html
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+  backend:
+    image: node:16-alpine
+    working_dir: /app
+    volumes:
+      - ./back:/app
+    command: node server.js
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./SQL:/docker-entrypoint-initdb.d
+volumes:
+  db_data:
