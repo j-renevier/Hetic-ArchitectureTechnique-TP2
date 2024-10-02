@@ -13,7 +13,7 @@ services:
     image: node:16-alpine
     working_dir: /back
     volumes:
-      - ./back:/app
+      - ./back:/back
     command: node server.js
     expose:
       - "3000"
