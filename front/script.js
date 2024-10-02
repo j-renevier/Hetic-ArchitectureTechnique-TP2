@@ -1,57 +1,63 @@
-let domaine = 'http://15.237.254.215:3000';
-let displayValue = '';
+let domaine = 'http://15.237.254.215:3000'; // L'URL de votre API
+const display = document.getElementById('display');
 const historyList = document.getElementById('history');
 
-// Fonction pour ajouter un numéro
-function appendNumber(number) {
-  displayValue += number;
-  document.getElementById('display').value = displayValue;
+function appendToDisplay(value) {
+    if (display.innerText === '0') {
+        display.innerText = value;
+    } else {
+        display.innerText += value;
+    }
 }
 
-// Fonction pour ajouter une opération
-function appendOperation(operation) {
-  displayValue += ' ' + operation + ' ';
-  document.getElementById('display').value = displayValue;
-}
-
-// Fonction pour effacer l'écran
 function clearDisplay() {
-  displayValue = '';
-  document.getElementById('display').value = '';
+    display.innerText = '0';
 }
 
-// Fonction pour envoyer le calcul au backend et mettre à jour l'historique
-function calculate() {
-  fetch(`${domaine}/calcul`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ operation: displayValue }),
-  })
+function calculateResult() {
+    const expression = display.innerText;
+    try {
+        const result = eval(expression);
+        display.innerText = result;
+
+        // Sauvegarder dans l'historique
+        saveToHistory(expression, result);
+    } catch (error) {
+        display.innerText = 'Error';
+    }
+}
+
+function saveToHistory(expression, result) {
+    const entry = { expression, result };
+
+    fetch(`${domaine}/api/history`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(entry),
+    })
     .then(response => response.json())
     .then(data => {
-      document.getElementById('display').value = data.result;
-      displayValue = data.result;
-      updateHistory();
+        // Mettre à jour l'affichage de l'historique
+        updateHistory();
     })
-    .catch(error => console.error('Erreur:', error));
+    .catch(error => console.error('Error:', error));
 }
 
-// Fonction pour mettre à jour l'historique
 function updateHistory() {
-  fetch(`${domaine}/historique`)
-    .then(response => response.json())
-    .then(data => {
-      historyList.innerHTML = '';
-      data.forEach(entry => {
-        const li = document.createElement('li');
-        li.textContent = `${entry.operation} = ${entry.resultat}`;
-        historyList.appendChild(li);
-      });
-    })
-    .catch(error => console.error('Erreur:', error));
+    fetch(`${domaine}/api/history`)
+        .then(response => response.json())
+        .then(data => {
+            historyList.innerHTML = ''; // Réinitialiser la liste
+            data.forEach(entry => {
+                const li = document.createElement('li');
+                li.textContent = `${entry.expression} = ${entry.result}`;
+                historyList.appendChild(li);
+            });
+        })
+        .catch(error => console.error('Error:', error));
 }
 
-// Charger l'historique dès le chargement de la page
-window.onload = updateHistory;
+// Charger l'historique à l'initialisation
+updateHistory();
